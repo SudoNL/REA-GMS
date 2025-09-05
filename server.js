@@ -3,10 +3,11 @@ const path = require("path");
 const axios = require("axios");
 const cookieParser = require("cookie-parser");
 const fs = require("fs");
+const os = require("os");
 
 const app = express();
 const PORT = 3000;
-const HOST = "0.0.0.0"; // zodat server bereikbaar is via IP
+const HOST = "0.0.0.0"; // Luister op alle interfaces
 
 // OAuth2 Config
 const CLIENT_ID = "1413571382452686938";
@@ -238,7 +239,21 @@ app.get("/api/archief", (req, res) => {
   res.json(archief);
 });
 
-// Server starten
-app.listen(PORT, HOST, () =>
-  console.log(`Server draait op http://${HOST}:${PORT}`)
-);
+// Server starten met IP-print
+app.listen(PORT, HOST, () => {
+  const interfaces = os.networkInterfaces();
+  const ipAddresses = [];
+
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === "IPv4" && !iface.internal) {
+        ipAddresses.push(iface.address);
+      }
+    }
+  }
+
+  console.log(`Server draait op poort ${PORT}`);
+  ipAddresses.forEach((ip) =>
+    console.log(`Bereikbaar op: http://${ip}:${PORT}`)
+  );
+});
