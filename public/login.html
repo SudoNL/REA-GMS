@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>Meldkamer Login</title>
+<link rel="stylesheet" href="style-login.css">
+</head>
+<body>
+<div class="container">
+<h1>Meldkamer Login</h1>
+
+<!-- Keuze specialisatie -->
+<div id="specialisatie-container">
+  <h2>Kies jouw specialisatie</h2>
+  <select id="rolSelect">
+    <optgroup label="Politie">
+      <option value="DSI">DSI</option>
+      <option value="Recherche">Recherche</option>
+      <option value="Team Verkeer">Team Verkeer</option>
+      <option value="Noodhulp">Noodhulp</option>
+      <option value="Unmarked">Unmarked</option>
+      <option value="Zulu">Zulu</option>
+    </optgroup>
+    <optgroup label="Brandweer">
+      <option value="Tankautospuit">Tankautospuit</option>
+      <option value="QRT">QRT</option>
+      <option value="Ladderwagen">Ladderwagen</option>
+    </optgroup>
+    <optgroup label="Ambulance">
+      <option value="Regulier">Regulier</option>
+      <option value="Lifeliner 1">Lifeliner 1</option>
+      <option value="OvD-G">OvD-G</option>
+    </optgroup>
+    <optgroup label="Handhaving">
+      <option value="Regulier">Regulier</option>
+      <option value="Rijkswaterstaat">Rijkswaterstaat</option>
+      <option value="Boswachter">Boswachter</option>
+    </optgroup>
+    <optgroup label="Burger">
+      <option value="Reserve Burger">Reserve Burger</option>
+    </optgroup>
+    <optgroup label="Meldkamer">
+      <option value="Meldkamer">Meldkamer</option>
+    </optgroup>
+  </select>
+  <button id="startBtn">Login met Discord</button>
+</div>
+
+</div>
+
+<script>
+document.getElementById("startBtn").addEventListener("click", ()=>{
+  const spec = document.getElementById("rolSelect").value;
+  // Bewaar selectie in cookie voor server
+  document.cookie = `specialisatie=${spec};path=/`;
+  window.location.href="/auth/discord";
+});
+</script>
+</body>
+</html>

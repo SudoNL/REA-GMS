@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>Meldkamer Dashboard</title>
+<link rel="stylesheet" href="style-dashboard.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="container">
+  <!-- Roepnummer en uitlogknop -->
+  <div class="top-right">
+    <span id="roepnummer"></span>
+    <button id="logoutBtn" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Uitloggen</button>
+  </div>
+
+  <!-- Header -->
+  <header class="dashboard-header">
+    <h1>Meldkamer Dashboard</h1>
+    <p id="user">Ingelogd als: ...</p>
+  </header>
+
+  <!-- Burger sectie -->
+  <section id="burger" class="dashboard-section" style="display:none;">
+    <h2><i class="fa-solid fa-bullhorn"></i> Nieuwe Melding</h2>
+    <form id="meldingForm">
+      <input name="locatie" placeholder="Locatie" required>
+      <input name="type" placeholder="Type melding" required>
+      <textarea name="omschrijving" placeholder="Omschrijving" required></textarea>
+      <button type="submit"><i class="fa-solid fa-paper-plane"></i> Verstuur melding</button>
+    </form>
+  </section>
+
+  <!-- Meldkamer sectie -->
+  <section id="meldkamer" class="dashboard-section" style="display:none;">
+    <h2><i class="fa-solid fa-shield-halved"></i> Actieve Meldingen</h2>
+    <ul id="meldingen"></ul>
+  </section>
+
+  <!-- Archief link -->
+  <section class="dashboard-section">
+    <a class="archief-btn" href="archief.html"><i class="fa-solid fa-archive"></i> Bekijk Archief</a>
+  </section>
+</div>
+
+<script>
+let currentUser = null;
+let users = [];
+
+// Huidige gebruiker laden
+async function loadUser(){
+  const res = await fetch("/api/me");
+  currentUser = await res.json();
+  if(!currentUser?.id){ window.location.href="/login"; return; }
+
+  document.getElementById("user").innerHTML =
+    `Ingelogd als: <strong>${currentUser.username}</strong> (rollen: ${currentUser.roles.join(", ")})`;
+
+  document.getElementById("roepnummer").textContent = `Roepnummer: ${currentUser.roepnummer}`;
+
+  if(currentUser.roles.includes("Burger") || currentUser.roles.includes("Reserve Burger")) {
+    document.getElementById("burger").style.display = "block";
+  }
+
+  if(currentUser.roles.includes("Meldkamer")) {
+    document.getElementById("meldkamer").style.display = "block";
+    loadUsers();
+    loadMeldingen();
+    setInterval(loadMeldingen, 3000);
+  }
+}
+
+// Alle gebruikers laden (voor Meldkamer)
+async function loadUsers(){
+  const res = await fetch("/api/users");
+  users = await res.json();
+}
+
+// Meldingen laden
+async function loadMeldingen(){
+  const res = await fetch("/api/meldingen");
+  const meldingen = await res.json();
+  const list = document.getElementById("meldingen");
+  list.innerHTML = "";
+
+  meldingen.forEach(m=>{
+    if(m.status==="Gesloten") return;
+
+    const li = document.createElement("li");
+    let tekst = `${m.type} bij ${m.locatie} - ${m.omschrijving} | Status: ${m.status}`;
+    if(m.claimedBy) tekst += ` | Toegewezen aan: ${m.claimedBy}`;
+    li.textContent = tekst;
+
+    // Alleen Meldkamer kan indelen
+    if(currentUser.roles.includes("Meldkamer") && m.status==="Open") {
+      const select = document.createElement("select");
+      select.innerHTML = `<option value="">Selecteer personeel</option>`;
+      const personeel = users.filter(u=>["Politie","Ambulance","Brandweer","Handhaving"].includes(u.roles[0]));
+      personeel.forEach(p=>{
+        const opt = document.createElement("option");
+        opt.value = p.username;
+        opt.textContent = `${p.username} (${p.specialisatie})`;
+        select.appendChild(opt);
+      });
+
+      const toewijsBtn = document.createElement("button");
+      toewijsBtn.textContent = "Toewijzen";
+      toewijsBtn.onclick = async ()=>{
+        const assignedUser = select.value;
+        if(!assignedUser) return alert("Selecteer iemand om toe te wijzen");
+        await fetch(`/api/melding/claim/${m.id}`, {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({gebruiker:assignedUser})
+        });
+        loadMeldingen();
+      };
+
+      li.appendChild(select);
+      li.appendChild(toewijsBtn);
+    }
+
+    list.appendChild(li);
+  });
+}
+
+// Melding versturen (Burger)
+document.getElementById("meldingForm")?.addEventListener("submit", async e=>{
+  e.preventDefault();
+  const data = {
+    locatie: e.target.locatie.value,
+    type: e.target.type.value,
+    omschrijving: e.target.omschrijving.value
+  };
+  await fetch("/api/melding", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify(data)
+  });
+  alert("Melding verstuurd!");
+  e.target.reset();
+  loadMeldingen();
+});
+
+// Logout knop
+document.getElementById("logoutBtn").addEventListener("click", ()=>{
+  window.location.href="/logout";
+});
+
+loadUser();
+</script>
+</body>
+</html>

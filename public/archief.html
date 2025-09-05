@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>Meldingen Archief</title>
+<link rel="stylesheet" href="style-dashboard.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="container">
+  <div class="top-right">
+    <button id="logoutBtn" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Uitloggen</button>
+  </div>
+
+  <header class="dashboard-header">
+    <h1>Archief Meldingen</h1>
+  </header>
+
+  <section class="dashboard-section">
+    <ul id="archief"></ul>
+  </section>
+
+  <section class="dashboard-section">
+    <a class="archief-btn" href="dashboard.html"><i class="fa-solid fa-arrow-left"></i> Terug naar Dashboard</a>
+  </section>
+</div>
+
+<script>
+let currentUser=null;
+
+async function loadUser(){
+  const res = await fetch("/api/me");
+  currentUser = await res.json();
+  if(!currentUser?.id){ window.location.href="/login"; return; }
+}
+
+async function loadArchief(){
+  const res = await fetch("/api/archief");
+  const meldingen = await res.json();
+  const list = document.getElementById("archief");
+  list.innerHTML="";
+  meldingen.forEach((m)=>{
+    const li = document.createElement("li");
+    li.textContent = `${m.type} bij ${m.locatie} - ${m.omschrijving} | Status: ${m.status} | Afgehandeld door: ${m.claimedBy || "-"}`;
+    list.appendChild(li);
+  });
+}
+
+// Logout knop
+document.getElementById("logoutBtn").addEventListener("click",()=>{
+  window.location.href="/logout";
+});
+
+loadUser().then(loadArchief);
+</script>
+</body>
+</html>

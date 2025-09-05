@@ -1,0 +1,101 @@
+/* --- Algemene instellingen --- */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: #f8fafc;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* --- Login container --- */
+.container {
+  background: #1e293b;
+  padding: 40px 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+}
+
+/* --- Titel --- */
+h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #60a5fa;
+}
+
+/* --- Specialisatie sectie --- */
+#specialisatie-container h2 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: #f8fafc;
+}
+
+#rolSelect {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  background: #334155;
+  color: #f8fafc;
+  font-size: 1rem;
+  margin-bottom: 25px;
+}
+
+#rolSelect option {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+/* --- Login button --- */
+#startBtn {
+  width: 100%;
+  background: #5865F2; /* Discord blauw */
+  color: white;
+  padding: 12px 0;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+#startBtn:hover {
+  background: #4752C4;
+}
+
+/* --- Icon in button (optioneel) --- */
+#startBtn i {
+  font-size: 1.2rem;
+}
+
+/* --- Footer / kleine tekst --- */
+.container p {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-top: 20px;
+}
+
+/* --- Responsive --- */
+@media(max-width: 450px){
+  .container {
+    padding: 30px 20px;
+  }
+  h1 {
+    font-size: 1.7rem;
+  }
+  #startBtn {
+    font-size: 0.95rem;
+  }
+}
